@@ -33,10 +33,10 @@ const Dashboard = () => {
   const { isConnected, selectedChatId, filterMode, setFilterMode, selectedDate, setSelectedDate } = useAppStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Redirect if not connected
+  // Redirect if not connected (logged in)
   useEffect(() => {
     if (!isConnected) {
-      navigate('/connect');
+      navigate('/login');
     }
   }, [isConnected, navigate]);
 

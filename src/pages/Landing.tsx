@@ -35,8 +35,8 @@ const Landing = () => {
             </div>
             <span className="font-semibold text-lg text-foreground">WhatsApp Digest</span>
           </div>
-          <Button variant="ghost" onClick={() => navigate('/connect')}>
-            Get Started
+          <Button variant="ghost" onClick={() => navigate('/login')}>
+            Sign In
           </Button>
         </div>
       </header>
@@ -76,15 +76,15 @@ const Landing = () => {
                 <Button 
                   variant="hero" 
                   size="xl"
-                  onClick={() => navigate('/connect')}
+                  onClick={() => navigate('/login')}
                 >
                   <MessageSquare className="w-5 h-5" />
-                  Connect WhatsApp (Demo)
+                  Get Started Free
                 </Button>
                 <Button 
                   variant="outline" 
                   size="xl"
-                  onClick={() => navigate('/connect')}
+                  onClick={() => navigate('/login')}
                 >
                   See how it works
                 </Button>
@@ -197,15 +197,15 @@ const Landing = () => {
                 Ready to take control of your chats?
               </h2>
               <p className="text-muted-foreground text-lg mb-8">
-                Try the demo with sample data or upload your own chat exports
+                Sign in to see your daily digest and search your conversations
               </p>
               <Button 
                 variant="hero" 
                 size="xl"
-                onClick={() => navigate('/connect')}
+                onClick={() => navigate('/login')}
               >
                 <MessageSquare className="w-5 h-5" />
-                Get Started Free
+                Sign In Now
               </Button>
             </motion.div>
           </div>

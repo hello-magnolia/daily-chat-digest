@@ -8,10 +8,10 @@ import { useAppStore } from "@/lib/store";
 import { format } from "date-fns";
 
 const exampleQueries = [
-  "Did anyone mention the dinner on Friday?",
-  "Any updates about the venue?",
-  "What time did people agree on?",
-  "Who's bringing the cake?",
+  "Any discussions about visa?",
+  "What was decided about the venue?",
+  "Who mentioned the budget?",
+  "Travel plans for next week?",
 ];
 
 const SearchPanel = () => {
