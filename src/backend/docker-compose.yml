@@ -5,7 +5,7 @@ services:
     build: .
     container_name: whatsapp-digest-api
     ports:
-      - "8000:8000"
+      - "8077:8077"
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_KEY=${SUPABASE_KEY}
