@@ -104,15 +104,11 @@ const ChatSidebar = () => {
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{chat.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {chat.messageCount} messages today
+                  {chat.isGroup ? "Group" : "Direct"}
                 </p>
               </div>
               {chat.messageCount > 0 && (
-                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-xs font-medium text-primary-foreground">
-                    {chat.messageCount}
-                  </span>
-                </div>
+                <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
               )}
             </motion.button>
           ))}
