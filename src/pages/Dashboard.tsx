@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 
   MessageSquare, 
   Calendar, 
-  Menu, 
-  X, 
   Filter,
-  ChevronDown 
+  ChevronDown,
+  PanelLeftOpen,
+  PanelLeftClose
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/lib/store";
@@ -48,16 +48,8 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="px-4 h-16 flex items-center justify-between">
+        <div className="px-4 h-16 flex items-center justify-between max-w-5xl mx-auto w-full">
           <div className="flex items-center gap-3">
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="md:hidden p-2 hover:bg-muted rounded-lg"
-            >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-            
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg gradient-hero flex items-center justify-center">
                 <MessageSquare className="w-5 h-5 text-primary-foreground" />
@@ -100,40 +92,45 @@ const Dashboard = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Sidebar toggle */}
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="shrink-0"
+            >
+              {sidebarOpen ? (
+                <PanelLeftClose className="w-5 h-5" />
+              ) : (
+                <PanelLeftOpen className="w-5 h-5" />
+              )}
+            </Button>
           </div>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Desktop */}
-        <aside className="hidden md:block w-72 shrink-0">
-          <ChatSidebar />
-        </aside>
-
-        {/* Sidebar - Mobile overlay */}
-        {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-foreground/20 z-40 md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          >
+        {/* Collapsible Sidebar */}
+        <AnimatePresence>
+          {sidebarOpen && (
             <motion.aside
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              className="absolute left-0 top-16 bottom-0 w-72"
-              onClick={(e) => e.stopPropagation()}
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 288, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="shrink-0 overflow-hidden border-r border-border"
             >
-              <ChatSidebar />
+              <div className="w-72 h-full">
+                <ChatSidebar />
+              </div>
             </motion.aside>
-          </motion.div>
-        )}
+          )}
+        </AnimatePresence>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="max-w-3xl mx-auto space-y-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div className="max-w-2xl mx-auto space-y-8">
             {/* Search Panel - Always visible */}
             <SearchPanel />
             

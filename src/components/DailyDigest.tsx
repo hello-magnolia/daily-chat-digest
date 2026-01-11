@@ -44,37 +44,35 @@ const DailyDigest = () => {
   }, {} as Record<string, Highlight[]>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Daily Summary Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-card rounded-2xl p-6 shadow-card border border-border"
+        className="text-center"
       >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl gradient-hero flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <div>
-            <h2 className="font-semibold text-foreground">Daily Digest</h2>
-            <p className="text-sm text-muted-foreground">
-              {selectedDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </p>
-          </div>
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-hero mb-4">
+          <Sparkles className="w-7 h-7 text-primary-foreground" />
         </div>
+        <h1 className="text-2xl font-bold text-foreground mb-1">Daily Digest</h1>
+        <p className="text-muted-foreground mb-6">
+          {selectedDate.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric' 
+          })}
+        </p>
 
-        <div className="prose prose-sm max-w-none text-foreground">
-          {digest.split('\n\n').map((paragraph, i) => (
-            <p key={i} className="text-muted-foreground leading-relaxed mb-3 last:mb-0">
-              {paragraph.split('**').map((part, j) => 
-                j % 2 === 1 ? <strong key={j} className="text-foreground font-medium">{part}</strong> : part
-              )}
-            </p>
-          ))}
+        <div className="bg-card rounded-2xl p-6 shadow-card border border-border text-left">
+          <div className="prose prose-sm max-w-none">
+            {digest.split('\n\n').map((paragraph, i) => (
+              <p key={i} className="text-muted-foreground leading-relaxed mb-4 last:mb-0 text-base">
+                {paragraph.split('**').map((part, j) => 
+                  j % 2 === 1 ? <strong key={j} className="text-foreground font-semibold">{part}</strong> : part
+                )}
+              </p>
+            ))}
+          </div>
         </div>
       </motion.div>
 
