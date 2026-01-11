@@ -32,7 +32,8 @@ const ChatSidebar = () => {
     <div className="h-full flex flex-col bg-sidebar border-r border-sidebar-border">
       {/* Header */}
       <div className="p-4 border-b border-sidebar-border">
-        <h2 className="font-semibold text-sidebar-foreground mb-3">Chats</h2>
+        <h2 className="font-semibold text-sidebar-foreground mb-1">Your Chats</h2>
+        <p className="text-xs text-muted-foreground mb-3">Select a chat to view its summary</p>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
