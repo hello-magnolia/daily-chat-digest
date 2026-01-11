@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { MessageSquare, Users, User, Search } from "lucide-react";
+import { MessageSquare, Users, User, Search, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import { getChatMessageCount, sampleChats } from "@/lib/data";
@@ -79,7 +80,7 @@ const ChatSidebar = () => {
               transition={{ delay: index * 0.05 }}
               onClick={() => setSelectedChatId(chat.id)}
               className={cn(
-                "w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left",
+                "w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left group",
                 selectedChatId === chat.id 
                   ? "bg-sidebar-accent text-sidebar-accent-foreground" 
                   : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
@@ -107,9 +108,23 @@ const ChatSidebar = () => {
                   {chat.isGroup ? "Group" : "Direct"}
                 </p>
               </div>
-              {chat.messageCount > 0 && (
-                <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
-              )}
+              <div className="flex items-center gap-2 shrink-0">
+                {chat.messageCount > 0 && (
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(`https://wa.me/?text=Opening%20${encodeURIComponent(chat.name)}`, '_blank');
+                  }}
+                  title="Open in WhatsApp"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </Button>
+              </div>
             </motion.button>
           ))}
         </div>
