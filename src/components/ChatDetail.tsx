@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageCircle, Users, User } from "lucide-react";
+import { ArrowLeft, MessageCircle, Users, User, Reply } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { getChatById, generateChatSummary, getMessagesForChat } from "@/lib/data";
 import { Button } from "@/components/ui/button";
@@ -105,7 +105,7 @@ const ChatDetail = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-muted/50 rounded-lg p-4"
+                className="bg-muted/50 rounded-lg p-4 group"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-sm text-foreground">{message.sender}</span>
@@ -113,7 +113,18 @@ const ChatDetail = () => {
                     {format(message.timestamp, 'h:mm a')}
                   </span>
                 </div>
-                <p className="text-muted-foreground text-sm">{message.text}</p>
+                <p className="text-muted-foreground text-sm mb-3">{message.text}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => {
+                    window.open(`https://wa.me/?text=${encodeURIComponent(`Re: "${message.text.slice(0, 50)}..."`)}`, '_blank');
+                  }}
+                >
+                  <Reply className="w-3.5 h-3.5" />
+                  Reply in WhatsApp
+                </Button>
               </motion.div>
             ))}
           </div>
