@@ -1,0 +1,309 @@
+WHATSAPP DIGEST BACKEND - COMPLETE SETUP GUIDE
+================================================================================
+
+PROJECT STRUCTURE
+--------------------------------------------------------------------------------
+/home/pacel/misc/sundai105/backend/
+├── main.py                  # FastAPI application entry point
+├── config.py                # Configuration management
+├── models.py                # Pydantic data models
+├── mcp_client.py            # MCP server client
+├── supabase_service.py      # Supabase database service
+├── ai_service.py            # AI summarization service
+├── celery_tasks.py          # Background task definitions
+├── requirements.txt         # Python dependencies
+├── Dockerfile               # Container image definition
+├── docker-compose.yml       # Multi-container orchestration
+├── nginx.conf               # Reverse proxy configuration
+├── .env.example             # Environment variables template
+├── README.md                # Full documentation
+├── Makefile                 # Convenience commands
+├── start.sh                 # Startup script
+├── test_basic.py            # Unit tests
+└── test_client.py           # API integration tests
+
+KEY FEATURES
+--------------------------------------------------------------------------------
+✓ FastAPI REST API with async support
+✓ MCP server integration for WhatsApp data
+✓ OpenAI/Anthropic AI summarization
+✓ Supabase for persistent storage
+✓ Celery + Redis for background tasks
+✓ Docker containerization
+✓ Nginx reverse proxy with rate limiting
+✓ Horizontal scaling support
+✓ Health checks and monitoring
+✓ Auto-generated API documentation
+
+API ENDPOINTS
+--------------------------------------------------------------------------------
+POST   /api/v1/update_summaries      Update chat summaries
+GET    /api/v1/get_summaries          Retrieve summaries
+POST   /api/v1/handle_user_query      Ask questions about chats
+GET    /api/v1/chats                  List all chats
+GET    /api/v1/messages               Get messages with filters
+GET    /api/v1/task_status/{id}       Check background task status
+GET    /health                        Health check endpoint
+GET    /docs                          Interactive API documentation
+
+QUICK START
+--------------------------------------------------------------------------------
+
+1. CONFIGURE ENVIRONMENT
+
+   cd /home/pacel/misc/sundai105/backend
+   cp .env.example .env
+   
+   Edit .env with your credentials:
+   - SUPABASE_URL and SUPABASE_KEY
+   - OPENAI_API_KEY or ANTHROPIC_API_KEY
+   - MCP_SERVER_URL (your WhatsApp MCP server)
+
+2. SETUP SUPABASE DATABASE
+
+   Run the SQL schema from README.md in your Supabase SQL editor:
+   - Creates messages table
+   - Creates chat_summaries table
+   - Creates daily_digests table
+   - Creates necessary indexes
+
+3. START SERVICES
+
+   Option A - Docker (Recommended):
+   
+   chmod +x start.sh
+   ./start.sh
+   
+   Option B - Make:
+   
+   make up
+   
+   Option C - Docker Compose:
+   
+   docker-compose up -d
+
+4. VERIFY DEPLOYMENT
+
+   Check health:
+   curl http://localhost:8000/health
+   
+   View API docs:
+   Open http://localhost:8000/docs in browser
+
+5. TEST API
+
+   python test_client.py
+
+SERVICES
+--------------------------------------------------------------------------------
+
+API SERVER (port 8000)
+- FastAPI application
+- Handles HTTP requests
+- Connects to MCP, Supabase, AI services
+
+REDIS (port 6379)
+- Task queue broker
+- Caching layer
+- Session storage
+
+CELERY WORKER
+- Background task processing
+- Summary generation
+- Message synchronization
+
+NGINX (port 80)
+- Reverse proxy
+- Rate limiting
+- Load balancing
+
+ARCHITECTURE FLOW
+--------------------------------------------------------------------------------
+
+1. UPDATE SUMMARIES FLOW:
+   
+   Client → API → Celery Task → MCP Server (get messages)
+                              → AI Service (generate summaries)
+                              → Supabase (store summaries)
+
+2. GET SUMMARIES FLOW:
+   
+   Client → API → Supabase (retrieve summaries) → Client
+
+3. QUERY FLOW:
+   
+   Client → API → Supabase (get messages + summaries)
+                → AI Service (RAG processing)
+                → Client
+
+SCALING CONSIDERATIONS
+--------------------------------------------------------------------------------
+
+HORIZONTAL SCALING:
+- Scale API: docker-compose up -d --scale api=3
+- Scale Workers: docker-compose up -d --scale worker=5
+
+PRODUCTION OPTIMIZATIONS:
+- Enable Redis clustering
+- Add database connection pooling
+- Implement caching strategy
+- Add monitoring (Prometheus/Grafana)
+- Setup centralized logging
+- Configure SSL/TLS
+- Add authentication/authorization
+
+MCP SERVER REQUIREMENTS
+--------------------------------------------------------------------------------
+
+Your WhatsApp MCP server must implement:
+
+1. get_messages endpoint:
+   - Accepts: chat_id, start_date, end_date, limit
+   - Returns: array of message objects
+
+2. get_chats endpoint:
+   - Returns: array of chat objects
+
+3. Health check endpoint (optional):
+   - GET /health
+   - Returns: 200 OK
+
+Expected message format:
+{
+  "id": "msg_123",
+  "chat_id": "chat_456",
+  "sender": "John Doe",
+  "timestamp": "2025-01-15T10:30:00Z",
+  "text": "Message content"
+}
+
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+
+PROBLEM: MCP server connection failed
+SOLUTION: 
+- Verify MCP_SERVER_URL in .env
+- Check MCP server is running
+- Test: curl http://localhost:3000/health
+
+PROBLEM: Celery tasks not processing
+SOLUTION:
+- Check Redis: docker-compose ps redis
+- View worker logs: docker-compose logs worker
+- Restart worker: docker-compose restart worker
+
+PROBLEM: Supabase authentication error
+SOLUTION:
+- Verify SUPABASE_URL and SUPABASE_KEY
+- Check Supabase project status
+- Ensure tables exist (run schema SQL)
+
+PROBLEM: AI summaries not generating
+SOLUTION:
+- Verify OPENAI_API_KEY or ANTHROPIC_API_KEY
+- Check API quota/billing
+- Review API logs: docker-compose logs api
+
+USEFUL COMMANDS
+--------------------------------------------------------------------------------
+
+View all logs:
+  docker-compose logs -f
+
+View specific service logs:
+  docker-compose logs -f api
+  docker-compose logs -f worker
+
+Restart services:
+  docker-compose restart
+
+Stop services:
+  docker-compose down
+
+Remove everything:
+  docker-compose down -v
+
+Shell access:
+  docker-compose exec api /bin/bash
+
+Check task queue:
+  docker-compose exec redis redis-cli
+
+DEVELOPMENT WORKFLOW
+--------------------------------------------------------------------------------
+
+1. Local development without Docker:
+   
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   
+   # Start Redis
+   docker run -d -p 6379:6379 redis:7-alpine
+   
+   # Terminal 1: Start worker
+   celery -A celery_tasks worker --loglevel=info
+   
+   # Terminal 2: Start API
+   python main.py
+
+2. Make code changes
+
+3. Test locally:
+   python test_basic.py
+   python test_client.py
+
+4. Build and test in Docker:
+   docker-compose up --build
+
+MONITORING
+--------------------------------------------------------------------------------
+
+Health endpoint provides service status:
+  curl http://localhost:8000/health
+
+Response includes:
+- Overall status
+- MCP server connectivity
+- Supabase connectivity
+- Timestamp
+
+Task status endpoint:
+  curl http://localhost:8000/api/v1/task_status/{task_id}
+
+NEXT STEPS
+--------------------------------------------------------------------------------
+
+1. Setup Supabase database schema
+2. Configure environment variables
+3. Start WhatsApp MCP server
+4. Start backend services
+5. Test with frontend application
+6. Configure production settings
+7. Setup monitoring and logging
+8. Deploy to production
+
+SUPPORT
+--------------------------------------------------------------------------------
+
+For issues or questions:
+1. Check README.md for detailed documentation
+2. Review API docs at /docs endpoint
+3. Check logs with docker-compose logs
+4. Verify environment configuration
+
+SECURITY NOTES
+--------------------------------------------------------------------------------
+
+- Never commit .env file to git
+- Rotate API keys regularly
+- Use HTTPS in production
+- Implement rate limiting
+- Add authentication/authorization
+- Validate all user inputs
+- Keep dependencies updated
+- Monitor for security vulnerabilities
+
+================================================================================
+END OF SETUP GUIDE
+================================================================================

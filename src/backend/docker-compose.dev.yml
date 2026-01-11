@@ -1,0 +1,60 @@
+version: '3.8'
+
+# Development docker-compose with hot reload
+services:
+  api:
+    build: .
+    container_name: whatsapp-digest-api-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REDIS_URL=redis://redis:6379/0
+      - MCP_SERVER_URL=${MCP_SERVER_URL:-http://host.docker.internal:3000}
+      - ENVIRONMENT=development
+    depends_on:
+      - redis
+    volumes:
+      - .:/app  # Mount source code for hot reload
+      - ./logs:/app/logs
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: whatsapp-digest-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data-dev:/data
+    networks:
+      - app-network
+
+  worker:
+    build: .
+    container_name: whatsapp-digest-worker-dev
+    command: celery -A celery_tasks worker --loglevel=debug
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REDIS_URL=redis://redis:6379/0
+      - MCP_SERVER_URL=${MCP_SERVER_URL:-http://host.docker.internal:3000}
+    depends_on:
+      - redis
+    volumes:
+      - .:/app  # Mount source code
+    networks:
+      - app-network
+
+volumes:
+  redis-data-dev:
+
+networks:
+  app-network:
+    driver: bridge
