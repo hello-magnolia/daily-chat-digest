@@ -1,4 +1,5 @@
-WhatsApp Daily Digest
+**WhatsApp Daily Digest
+**
 
 Keeping up with busy WhatsApp group chats is exhausting. Important updates, decisions, and deadlines get buried under hundreds of messages, memes, and side conversations.
 
@@ -16,7 +17,8 @@ Generating AI-powered daily digests and highlights
 
 Message data is stored locally in SQLite (as provided by the WhatsApp MCP), making the MCP connection temporary and reducing ongoing dependencies on WhatsApp. This architecture allows fast iteration, simple deployment, and a clear separation between data ingestion and summarization.
 
-Key Features
+
+**Key Features**
 
 📬 Daily WhatsApp summaries — clear overviews of busy chats
 
