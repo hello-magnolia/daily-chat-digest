@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { MessageSquare, Mail, Lock, ArrowRight, QrCode, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/lib/store";
+import SyncLoadingScreen from "@/components/SyncLoadingScreen";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [showSyncing, setShowSyncing] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,15 +36,26 @@ const Login = () => {
 
   const handleQRConnect = () => {
     setShowQR(true);
-    // Simulate QR scan after 3 seconds
+    // Simulate QR scan after 3 seconds, then show syncing screen
     setTimeout(() => {
-      loadSampleData();
-      navigate('/dashboard');
+      setShowQR(false);
+      setShowSyncing(true);
     }, 3000);
   };
 
+  const handleSyncComplete = () => {
+    loadSampleData();
+    navigate('/dashboard');
+  };
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <>
+      <AnimatePresence>
+        {showSyncing && (
+          <SyncLoadingScreen onComplete={handleSyncComplete} duration={5000} />
+        )}
+      </AnimatePresence>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
       {/* Background decoration */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute top-20 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
@@ -253,6 +266,7 @@ const Login = () => {
         </p>
       </motion.div>
     </div>
+    </>
   );
 };
 
