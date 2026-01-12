@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, Mail, Lock, ArrowRight, QrCode, Smartphone } from "lucide-react";
+import { MessageSquare, Mail, Lock, ArrowRight, QrCode, Smartphone, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/lib/store";
 import SyncLoadingScreen from "@/components/SyncLoadingScreen";
+import { getQRCode, getConnectionStatus } from "@/lib/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,6 +15,63 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [showSyncing, setShowSyncing] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrError, setQrError] = useState<string | null>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch QR code from backend
+  const fetchQRCode = async () => {
+    setQrLoading(true);
+    setQrError(null);
+    try {
+      const response = await getQRCode();
+      if (response.authenticated) {
+        // Already authenticated, go to sync screen
+        setShowQR(false);
+        setShowSyncing(true);
+      } else if (response.qr) {
+        setQrCode(response.qr);
+      } else {
+        setQrError("No QR code available. Please try again.");
+      }
+    } catch (error) {
+      setQrError(error instanceof Error ? error.message : "Failed to fetch QR code");
+    } finally {
+      setQrLoading(false);
+    }
+  };
+
+  // Poll for connection status
+  const pollConnectionStatus = async () => {
+    try {
+      const status = await getConnectionStatus();
+      if (status.authenticated) {
+        // User scanned and authenticated!
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current);
+          pollIntervalRef.current = null;
+        }
+        setShowQR(false);
+        setShowSyncing(true);
+      }
+    } catch (error) {
+      console.error("Status poll error:", error);
+    }
+  };
+
+  // Start polling when QR is shown
+  useEffect(() => {
+    if (showQR && qrCode) {
+      pollIntervalRef.current = setInterval(pollConnectionStatus, 2000);
+    }
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [showQR, qrCode]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,11 +94,8 @@ const Login = () => {
 
   const handleQRConnect = () => {
     setShowQR(true);
-    // Simulate QR scan after 3 seconds, then show syncing screen
-    setTimeout(() => {
-      setShowQR(false);
-      setShowSyncing(true);
-    }, 3000);
+    setQrCode(null);
+    fetchQRCode();
   };
 
   const handleSyncComplete = () => {
@@ -223,24 +278,35 @@ const Login = () => {
                 </p>
               </div>
 
-              {/* Mock QR Code */}
+              {/* QR Code from Backend */}
               <div className="bg-white p-4 rounded-2xl inline-block mb-6 shadow-lg">
-                <div className="w-48 h-48 bg-foreground/5 rounded-lg flex items-center justify-center relative">
-                  <div className="grid grid-cols-8 gap-1 p-2">
-                    {Array.from({ length: 64 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-4 h-4 rounded-sm ${
-                          Math.random() > 0.5 ? 'bg-foreground' : 'bg-transparent'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-md">
-                      <MessageSquare className="w-6 h-6 text-primary" />
+                <div className="w-48 h-48 rounded-lg flex items-center justify-center relative overflow-hidden">
+                  {qrLoading ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-primary rounded-full animate-spin" />
+                      <span className="text-xs text-muted-foreground">Loading QR...</span>
                     </div>
-                  </div>
+                  ) : qrError ? (
+                    <div className="flex flex-col items-center gap-3 p-4">
+                      <AlertCircle className="w-8 h-8 text-destructive" />
+                      <span className="text-xs text-destructive text-center">{qrError}</span>
+                      <Button size="sm" variant="outline" onClick={fetchQRCode} className="gap-1">
+                        <RefreshCw className="w-3 h-3" />
+                        Retry
+                      </Button>
+                    </div>
+                  ) : qrCode ? (
+                    <img 
+                      src={`data:image/png;base64,${qrCode}`} 
+                      alt="WhatsApp QR Code" 
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <QrCode className="w-12 h-12 text-muted-foreground/50" />
+                      <span className="text-xs text-muted-foreground">No QR available</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -250,13 +316,26 @@ const Login = () => {
                 <div className="w-4 h-4 border-2 border-muted-foreground/30 border-t-primary rounded-full animate-spin" />
               </div>
 
-              <Button
-                variant="ghost"
-                onClick={() => setShowQR(false)}
-                className="text-muted-foreground"
-              >
-                Back to login
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchQRCode}
+                  disabled={qrLoading}
+                  className="gap-1"
+                >
+                  <RefreshCw className={`w-3 h-3 ${qrLoading ? 'animate-spin' : ''}`} />
+                  Refresh QR
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowQR(false)}
+                  className="text-muted-foreground"
+                >
+                  Back to login
+                </Button>
+              </div>
             </motion.div>
           )}
         </div>
