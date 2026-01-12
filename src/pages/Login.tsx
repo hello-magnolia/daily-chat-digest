@@ -22,10 +22,12 @@ const Login = () => {
 
   // Fetch QR code from backend
   const fetchQRCode = async () => {
+    console.log("Fetching QR code...");
     setQrLoading(true);
     setQrError(null);
     try {
       const response = await getQRCode();
+      console.log("QR response:", response);
       if (response.authenticated) {
         // Already authenticated, go to sync screen
         setShowQR(false);
@@ -33,9 +35,10 @@ const Login = () => {
       } else if (response.qr) {
         setQrCode(response.qr);
       } else {
-        setQrError("No QR code available. Please try again.");
+        setQrError(response.message || "No QR code available. Please try again.");
       }
     } catch (error) {
+      console.error("QR fetch error:", error);
       setQrError(error instanceof Error ? error.message : "Failed to fetch QR code");
     } finally {
       setQrLoading(false);
