@@ -1,73 +1,35 @@
-# Welcome to your Lovable project
+WhatsApp Daily Digest
 
-## Project info
+Keeping up with busy WhatsApp group chats is exhausting. Important updates, decisions, and deadlines get buried under hundreds of messages, memes, and side conversations.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+WhatsApp Daily Digest solves this by turning noisy WhatsApp chats into clear, structured summaries. Instead of scrolling endlessly, users get concise daily breakdowns of what actually matters.
 
-## How can I edit this code?
+This project connects to WhatsApp via a temporary session, ingests chat data, and automatically generates summaries that highlight key messages, important announcements, action items, deadlines, and conversation themes. Once the data is ingested, all analysis and summaries run on the stored data — no constant live connection is required.
 
-There are several ways of editing your application.
+The system is designed as a lightweight demo-friendly backend that hosts an existing WhatsApp MCP server, exposing safe, web-friendly endpoints for:
 
-**Use Lovable**
+Connecting a WhatsApp account via QR code
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Fetching chats and messages
 
-Changes made via Lovable will be committed automatically to this repo.
+Generating AI-powered daily digests and highlights
 
-**Use your preferred IDE**
+Message data is stored locally in SQLite (as provided by the WhatsApp MCP), making the MCP connection temporary and reducing ongoing dependencies on WhatsApp. This architecture allows fast iteration, simple deployment, and a clear separation between data ingestion and summarization.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Key Features
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+📬 Daily WhatsApp summaries — clear overviews of busy chats
 
-Follow these steps:
+⭐ Highlights & key moments — surface important messages
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+⏰ Action items & deadlines — extracted automatically
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+🔍 Chat-level insights — understand what changed and why
 
-# Step 3: Install the necessary dependencies.
-npm i
+🔐 Session-based connection — WhatsApp connection is temporary
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+⚙️ Simple demo architecture — hosted backend with MCP integration
 
-**Edit a file directly in GitHub**
+Intended Use
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is intended for demos, prototypes, and internal tools, not production-scale consumer deployment. It demonstrates how WhatsApp message data can be safely ingested, stored, and analyzed using an MCP-based workflow.
