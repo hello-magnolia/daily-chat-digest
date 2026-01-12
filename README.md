@@ -1,5 +1,4 @@
-**WhatsApp Daily Digest
-**
+**WhatsApp Daily Digest**
 
 Keeping up with busy WhatsApp group chats is exhausting. Important updates, decisions, and deadlines get buried under hundreds of messages, memes, and side conversations.
 
