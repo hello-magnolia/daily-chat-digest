@@ -20,6 +20,10 @@ interface QRCodeData {
   status: 'pending' | 'scanned' | 'connected';
 }
 
+const API_BASE_URL =
+  (import.meta as { env?: Record<string, string> }).env?.VITE_API_URL ||
+  "https://whatsapp-mcpj-production.up.railway.app";
+
 // In-memory storage (simulates database)
 let prompts: Prompt[] = [];
 let summaries: Summary[] = [];
@@ -98,19 +102,23 @@ export async function updateSummary(chatId: string, content: string): Promise<{ 
  * Generate or retrieve current QR code for WhatsApp connection
  */
 export async function getQRCode(): Promise<{ success: boolean; data: QRCodeData }> {
-  await delay(400);
-  
-  // Generate new QR if none exists or expired
-  if (!currentQR || currentQR.expiresAt < new Date()) {
-    currentQR = {
-      code: `WA-${generateId()}-${Date.now()}`,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
-      status: 'pending',
-    };
+  const response = await fetch(`${API_BASE_URL}/api/qr`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch QR code: ${response.status}`);
   }
-  
-  console.log('[API] GET get_qr_code:', currentQR);
-  return { success: true, data: { ...currentQR } };
+
+  const payload = await response.json();
+  const data = payload.data ?? payload;
+  const expiresAt = data.expires_at ? new Date(data.expires_at) : new Date(Date.now() + 5 * 60 * 1000);
+
+  const qrData: QRCodeData = {
+    code: data.code || data.qr || "",
+    expiresAt,
+    status: data.status || "pending",
+  };
+
+  console.log('[API] GET /api/qr:', qrData);
+  return { success: true, data: qrData };
 }
 
 /**
