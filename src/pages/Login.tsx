@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, Mail, Lock, ArrowRight, QrCode, Smartphone, AlertCircle, RefreshCw } from "lucide-react";
+import { MessageSquare, Mail, Lock, ArrowRight, QrCode as QrCodeIcon, Smartphone, AlertCircle, RefreshCw } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/lib/store";
 import SyncLoadingScreen from "@/components/SyncLoadingScreen";
@@ -180,7 +181,7 @@ const Login = () => {
                 onClick={handleQRConnect}
                 disabled={isLoading}
               >
-                <QrCode className="w-5 h-5" />
+                <QrCodeIcon className="w-5 h-5" />
                 Scan QR to connect WhatsApp
               </Button>
 
@@ -299,14 +300,15 @@ const Login = () => {
                       </Button>
                     </div>
                   ) : qrCode ? (
-                    <img 
-                      src={`data:image/png;base64,${qrCode}`} 
-                      alt="WhatsApp QR Code" 
-                      className="w-full h-full object-contain"
+                    <QRCodeSVG 
+                      value={qrCode}
+                      size={192}
+                      level="M"
+                      includeMargin={false}
                     />
                   ) : (
                     <div className="flex flex-col items-center gap-2">
-                      <QrCode className="w-12 h-12 text-muted-foreground/50" />
+                      <QrCodeIcon className="w-12 h-12 text-muted-foreground/50" />
                       <span className="text-xs text-muted-foreground">No QR available</span>
                     </div>
                   )}
