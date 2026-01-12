@@ -301,7 +301,7 @@ const Login = () => {
                     </div>
                   ) : qrCode ? (
                     <QRCodeSVG 
-                      value={qrCode}
+                      value={`https://wa.me/settings/linked_devices#${qrCode}`}
                       size={192}
                       level="M"
                       includeMargin={false}
